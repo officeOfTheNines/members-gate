@@ -30,18 +30,18 @@
 
     #map { flex: 1; }
 
-    /* Pin label */
+    /* Pin */
     .pin-label { background: transparent; border: none; box-shadow: none; }
     .pin-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; }
     .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); box-shadow: 0 0 6px rgba(0,0,0,0.5); }
     .pin-score { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 500; color: var(--cream); background: rgba(26,26,24,0.85); padding: 1px 3px; border-radius: 2px; white-space: nowrap; }
     .pin-score.tbc { color: var(--muted); font-style: italic; }
 
+    /* Popup */
     .leaflet-popup-content-wrapper { background: #1e1e1c; border: 1px solid rgba(184,151,90,0.3); border-radius: 2px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); padding: 0; }
     .leaflet-popup-content { margin: 0; min-width: 230px; }
     .leaflet-popup-tip { background: #1e1e1c; }
     .leaflet-popup-close-button { color: var(--muted) !important; top: 8px !important; right: 8px !important; }
-
     .popup-inner { padding: 1rem 1.1rem; }
     .popup-season { font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
     .popup-name { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; color: var(--cream); margin-bottom: 0.1rem; line-height: 1.2; }
@@ -60,10 +60,61 @@
     .popup-total-value { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--gold); font-weight: 600; }
     .popup-total-item.highlight .popup-total-value { color: #fff; }
     .popup-total-item.highlight .popup-total-label { color: var(--gold-light); }
-    .popup-menu-btn { display: block; text-align: center; margin-top: 0.5rem; padding: 0.5rem; border: 1px solid rgba(184,151,90,0.3); color: var(--gold-light); font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; transition: background 0.2s; }
-    .popup-menu-btn:hover { background: rgba(184,151,90,0.1); }
+    .popup-menu-btn { display: block; text-align: center; margin-top: 0.5rem; padding: 0.5rem; border: 1px solid rgba(184,151,90,0.3); color: var(--gold-light); font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; cursor: pointer; background: transparent; width: 100%; transition: background 0.2s; font-family: 'Montserrat', sans-serif; }
+    .popup-menu-btn:hover { background: rgba(184,151,90,0.15); }
     .popup-no-menu { color: var(--muted); font-size: 0.6rem; text-align: center; margin-top: 0.5rem; font-style: italic; }
     .popup-tbc { color: var(--muted); font-size: 0.75rem; text-align: center; padding: 0.5rem 0; font-style: italic; }
+
+    /* ── Menu overlay ── */
+    #menu-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10,10,8,0.92);
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    #menu-overlay.visible { display: flex; }
+
+    .overlay-header {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+    .overlay-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      color: var(--cream);
+      opacity: 0.8;
+    }
+    .overlay-close {
+      background: transparent;
+      border: 1px solid rgba(184,151,90,0.3);
+      color: var(--gold-light);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.4rem 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .overlay-close:hover { background: rgba(184,151,90,0.15); }
+
+    #menu-frame {
+      width: 100%;
+      max-width: 860px;
+      flex: 1;
+      max-height: 80vh;
+      border: 1px solid rgba(184,151,90,0.2);
+      background: #fff;
+    }
   </style>
 </head>
 <body>
@@ -74,17 +125,13 @@
     <button class="toggle-btn" data-mode="total_wine">🍷 Wine</button>
     <button class="toggle-btn" data-mode="total_atmosphere">🎭 Atmosphere</button>
     <button class="toggle-btn" data-mode="total_neutral">⚖️ Neutral</button>
-
     <div class="sep"></div>
-
     <span class="controls-label">Season</span>
     <button class="toggle-btn active" data-season="All">All</button>
     <button class="toggle-btn" data-season="S1">S1</button>
     <button class="toggle-btn" data-season="S2">S2</button>
     <button class="toggle-btn" data-season="S3">S3</button>
-
     <div class="sep"></div>
-
     <div class="legend">
       <div class="legend-item"><div class="legend-dot" style="background:#b8975a;"></div> ≥ 7.5</div>
       <div class="legend-item"><div class="legend-dot" style="background:#9aa0a6;"></div> 6.5–7.5</div>
@@ -93,6 +140,15 @@
   </div>
 
   <div id="map"></div>
+
+  <!-- Menu PDF overlay -->
+  <div id="menu-overlay">
+    <div class="overlay-header">
+      <span class="overlay-title" id="overlay-title"></span>
+      <button class="overlay-close" onclick="closeMenu()">✕ Close</button>
+    </div>
+    <iframe id="menu-frame" src="" frameborder="0" allowfullscreen></iframe>
+  </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
@@ -103,6 +159,29 @@
       attribution: '© OpenStreetMap © CartoDB', maxZoom: 19
     }).addTo(map);
 
+    // ── Menu overlay ─────────────────────────────────────────
+    function openMenu(url, name) {
+      // Convert share URL to preview URL if needed
+      const previewUrl = url.replace('/view?usp=sharing', '/preview').replace('/view', '/preview');
+      document.getElementById('overlay-title').textContent = name + ' — Menu';
+      document.getElementById('menu-frame').src = previewUrl;
+      document.getElementById('menu-overlay').classList.add('visible');
+    }
+
+    function closeMenu() {
+      document.getElementById('menu-overlay').classList.remove('visible');
+      document.getElementById('menu-frame').src = '';
+    }
+
+    // Close on overlay background click
+    document.getElementById('menu-overlay').addEventListener('click', function(e) {
+      if (e.target === this) closeMenu();
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+
+    // ── Helpers ──────────────────────────────────────────────
     function getColor(score) {
       if (!score || score === '') return '#555';
       if (score >= 7.5) return '#b8975a';
@@ -117,13 +196,8 @@
         : `<div class="pin-score tbc">tbc</div>`;
       return L.divIcon({
         className: 'pin-label',
-        html: `<div class="pin-wrap">
-          <div class="pin-dot" style="background:${color};"></div>
-          ${scoreHtml}
-        </div>`,
-        iconSize: [40, 32],
-        iconAnchor: [20, 7],
-        popupAnchor: [0, -10]
+        html: `<div class="pin-wrap"><div class="pin-dot" style="background:${color};"></div>${scoreHtml}</div>`,
+        iconSize: [40, 32], iconAnchor: [20, 7], popupAnchor: [0, -10]
       });
     }
 
@@ -137,9 +211,9 @@
     function makePopup(r, mode) {
       const hasTotals = r.total_food && r.total_food !== '';
       const totalFields = [
-        { key: 'total_food', label: '🍴 Food Lover' },
-        { key: 'total_wine', label: '🍷 Wine' },
-        { key: 'total_atmosphere', label: '🎭 Atmosphere' },
+        { key: 'total_food', label: '🍴 Food+' },
+        { key: 'total_wine', label: '🍷 Wine+' },
+        { key: 'total_atmosphere', label: '🎭 Atmosphere+' },
         { key: 'total_neutral', label: '⚖️ Neutral' },
       ];
 
@@ -170,7 +244,7 @@
         </div>` : `<p class="popup-tbc">Ratings coming soon</p>`;
 
       const menuHtml = r.menu && r.menu.trim() !== ''
-        ? `<a class="popup-menu-btn" href="${r.menu}" target="_blank">View Menu PDF</a>`
+        ? `<button class="popup-menu-btn" onclick="openMenu('${r.menu}', '${r.name.replace(/'/g, "\\'")}')">📄 View Menu</button>`
         : `<p class="popup-no-menu">Menu not yet available</p>`;
 
       return `<div class="popup-inner">
@@ -203,11 +277,9 @@
     function renderMarkers() {
       markers.forEach(({ marker }) => map.removeLayer(marker));
       markers = [];
-
       const filtered = currentSeason === 'All'
         ? allRestaurants
         : allRestaurants.filter(r => r.season === currentSeason);
-
       filtered.forEach(r => {
         if (!r.lat || !r.lng) return;
         const score = r[currentMode] && r[currentMode] !== '' ? parseFloat(r[currentMode]) : null;
@@ -224,7 +296,6 @@
         allRestaurants = parseCSV(text);
         renderMarkers();
 
-        // Profile toggles
         document.querySelectorAll('[data-mode]').forEach(btn => {
           btn.addEventListener('click', () => {
             document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('active'));
@@ -234,7 +305,6 @@
           });
         });
 
-        // Season toggles
         document.querySelectorAll('[data-season]').forEach(btn => {
           btn.addEventListener('click', () => {
             document.querySelectorAll('[data-season]').forEach(b => b.classList.remove('active'));
