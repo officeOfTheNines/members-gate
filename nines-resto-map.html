@@ -23,6 +23,16 @@
     .toggle-btn:hover { border-color: var(--gold); color: var(--gold-light); }
     .toggle-btn.active { background: var(--gold); color: var(--ink); border-color: var(--gold); }
     .sep { width: 1px; height: 24px; background: rgba(184,151,90,0.2); margin: 0 0.25rem; flex-shrink: 0; }
+    .profile-wrap { position: relative; display: flex; align-items: center; }
+    .controls-label-btn { font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-right: 0.25rem; white-space: nowrap; cursor: pointer; border-bottom: 1px dashed rgba(184,151,90,0.4); transition: color 0.2s; background: none; border-top: none; border-left: none; border-right: none; font-family: 'Montserrat', sans-serif; padding: 0; }
+    .controls-label-btn:hover { color: var(--gold-light); }
+    .profile-tooltip { display: none; position: absolute; top: calc(100% + 10px); left: 0; background: #1e1e1c; border: 1px solid rgba(184,151,90,0.3); padding: 0.9rem 1rem; width: 270px; z-index: 9000; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+    .profile-tooltip.visible { display: block; }
+    .profile-tooltip::before { content: ''; position: absolute; top: -6px; left: 16px; width: 10px; height: 10px; background: #1e1e1c; border-left: 1px solid rgba(184,151,90,0.3); border-top: 1px solid rgba(184,151,90,0.3); transform: rotate(45deg); }
+    .tooltip-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; font-size: 0.67rem; line-height: 1.5; }
+    .tooltip-row:last-child { margin-bottom: 0; }
+    .tooltip-key { color: var(--gold-light); font-weight: 500; white-space: nowrap; min-width: 85px; }
+    .tooltip-val { color: var(--cream); opacity: 0.6; }
 
     .legend { display: flex; align-items: center; gap: 0.75rem; margin-left: auto; flex-wrap: wrap; }
     .legend-item { display: flex; align-items: center; gap: 0.3rem; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
@@ -30,101 +40,86 @@
 
     #map { flex: 1; }
 
-    /* Pin */
     .pin-label { background: transparent; border: none; box-shadow: none; }
     .pin-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; }
     .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); box-shadow: 0 0 6px rgba(0,0,0,0.5); }
     .pin-score { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 500; color: var(--cream); background: rgba(26,26,24,0.85); padding: 1px 3px; border-radius: 2px; white-space: nowrap; }
     .pin-score.tbc { color: var(--muted); font-style: italic; }
 
-    /* Popup */
     .leaflet-popup-content-wrapper { background: #1e1e1c; border: 1px solid rgba(184,151,90,0.3); border-radius: 2px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); padding: 0; }
-    .leaflet-popup-content { margin: 0; min-width: 230px; }
+    .leaflet-popup-content { margin: 0; min-width: 240px; }
     .leaflet-popup-tip { background: #1e1e1c; }
     .leaflet-popup-close-button { color: var(--muted) !important; top: 8px !important; right: 8px !important; }
+
     .popup-inner { padding: 1rem 1.1rem; }
     .popup-season { font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
     .popup-name { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; color: var(--cream); margin-bottom: 0.1rem; line-height: 1.2; }
     .popup-address { font-size: 0.6rem; color: var(--muted); margin-bottom: 0.15rem; }
     .popup-brigadiers { font-size: 0.65rem; color: var(--gold-light); margin-bottom: 0.75rem; font-style: italic; }
     .popup-divider { height: 1px; background: rgba(184,151,90,0.2); margin-bottom: 0.75rem; }
+
+    /* Featured total score — top of ratings */
+    .popup-featured {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid rgba(184,151,90,0.25);
+      background: rgba(184,151,90,0.06);
+    }
+    .popup-featured-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-light);
+    }
+    .popup-featured-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1;
+    }
+
     .popup-ratings { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.75rem; }
     .popup-rating-row { display: flex; align-items: center; font-size: 0.65rem; }
     .popup-rating-label { letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); min-width: 70px; }
     .popup-rating-bar-wrap { flex: 1; height: 3px; background: rgba(255,255,255,0.07); margin: 0 0.6rem; border-radius: 2px; }
     .popup-rating-bar { height: 100%; background: var(--gold); border-radius: 2px; }
     .popup-rating-value { font-weight: 500; color: var(--cream); min-width: 32px; text-align: right; }
-    .popup-totals { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; padding-top: 0.5rem; border-top: 1px solid rgba(184,151,90,0.15); margin-bottom: 0.5rem; }
-    .popup-total-item { display: flex; flex-direction: column; }
-    .popup-total-label { font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-    .popup-total-value { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--gold); font-weight: 600; }
-    .popup-total-item.highlight .popup-total-value { color: #fff; }
-    .popup-total-item.highlight .popup-total-label { color: var(--gold-light); }
+
     .popup-menu-btn { display: block; text-align: center; margin-top: 0.5rem; padding: 0.5rem; border: 1px solid rgba(184,151,90,0.3); color: var(--gold-light); font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; cursor: pointer; background: transparent; width: 100%; transition: background 0.2s; font-family: 'Montserrat', sans-serif; }
     .popup-menu-btn:hover { background: rgba(184,151,90,0.15); }
     .popup-no-menu { color: var(--muted); font-size: 0.6rem; text-align: center; margin-top: 0.5rem; font-style: italic; }
     .popup-tbc { color: var(--muted); font-size: 0.75rem; text-align: center; padding: 0.5rem 0; font-style: italic; }
 
-    /* ── Menu overlay ── */
-    #menu-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(10,10,8,0.92);
-      z-index: 9999;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-    }
+    /* Menu overlay */
+    #menu-overlay { display: none; position: fixed; inset: 0; background: rgba(10,10,8,0.92); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; }
     #menu-overlay.visible { display: flex; }
-
-    .overlay-header {
-      width: 100%;
-      max-width: 860px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 0.75rem;
-    }
-    .overlay-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.2rem;
-      color: var(--cream);
-      opacity: 0.8;
-    }
-    .overlay-close {
-      background: transparent;
-      border: 1px solid rgba(184,151,90,0.3);
-      color: var(--gold-light);
-      font-family: 'Montserrat', sans-serif;
-      font-size: 0.65rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      padding: 0.4rem 1rem;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
+    .overlay-header { width: 100%; max-width: 860px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+    .overlay-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: var(--cream); opacity: 0.8; }
+    .overlay-close { background: transparent; border: 1px solid rgba(184,151,90,0.3); color: var(--gold-light); font-family: 'Montserrat', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 0.4rem 1rem; cursor: pointer; transition: background 0.2s; }
     .overlay-close:hover { background: rgba(184,151,90,0.15); }
-
-    #menu-frame {
-      width: 100%;
-      max-width: 860px;
-      flex: 1;
-      max-height: 80vh;
-      border: 1px solid rgba(184,151,90,0.2);
-      background: #fff;
-    }
+    #menu-frame { width: 100%; max-width: 860px; flex: 1; max-height: 80vh; border: 1px solid rgba(184,151,90,0.2); background: #fff; }
   </style>
 </head>
 <body>
 
   <div class="controls">
-    <span class="controls-label">Profile</span>
-    <button class="toggle-btn active" data-mode="total_food">🍴 Food+</button>
-    <button class="toggle-btn" data-mode="total_wine">🍷 Wine+</button>
-    <button class="toggle-btn" data-mode="total_atmosphere">🎭 Atmosphere+</button>
-    <button class="toggle-btn" data-mode="total_neutral">⚖️ Neutral</button>
+    <div class="profile-wrap">
+      <button class="controls-label-btn" id="profileHelpBtn">Profile ⓘ</button>
+      <div class="profile-tooltip" id="profileTooltip">
+        <div class="tooltip-row"><span class="tooltip-key">🍴 Food+</span><span class="tooltip-val">Gives double weight to food in the average rating</span></div>
+        <div class="tooltip-row"><span class="tooltip-key">🍷 Wine+</span><span class="tooltip-val">Gives double weight to wine in the average rating</span></div>
+        <div class="tooltip-row"><span class="tooltip-key">🎭 Atmosphere+</span><span class="tooltip-val">Gives double weight to atmosphere in the average rating</span></div>
+        <div class="tooltip-row"><span class="tooltip-key">⚖️ Neutral</span><span class="tooltip-val">Treats food, wine and atmosphere equally</span></div>
+      </div>
+    </div>
+    <button class="toggle-btn active" data-mode="total_food" data-label="Food+">🍴 Food+</button>
+    <button class="toggle-btn" data-mode="total_wine" data-label="Wine+">🍷 Wine+</button>
+    <button class="toggle-btn" data-mode="total_atmosphere" data-label="Atmosphere+">🎭 Atmosphere+</button>
+    <button class="toggle-btn" data-mode="total_neutral" data-label="Neutral">⚖️ Neutral</button>
     <div class="sep"></div>
     <span class="controls-label">Season</span>
     <button class="toggle-btn active" data-season="All">All</button>
@@ -141,7 +136,6 @@
 
   <div id="map"></div>
 
-  <!-- Menu PDF overlay -->
   <div id="menu-overlay">
     <div class="overlay-header">
       <span class="overlay-title" id="overlay-title"></span>
@@ -154,34 +148,33 @@
   <script>
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRN3zApwLVbIyyNRRr0um-5KPXALnqQT53qOehiFrpCvJfFAVfEZw3yFYLet8iisqmRPeOt1BDiYhb-/pub?output=csv';
 
+    // Profile tooltip toggle
+    const profileBtn = document.getElementById('profileHelpBtn');
+    const profileTooltip = document.getElementById('profileTooltip');
+    profileBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      profileTooltip.classList.toggle('visible');
+    });
+    document.addEventListener('click', () => profileTooltip.classList.remove('visible'));
+
     const map = L.map('map').setView([51.505, -0.13], 12);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       attribution: '© OpenStreetMap © CartoDB', maxZoom: 19
     }).addTo(map);
 
-    // ── Menu overlay ─────────────────────────────────────────
     function openMenu(url, name) {
-      // Convert share URL to preview URL if needed
       const previewUrl = url.replace('/view?usp=sharing', '/preview').replace('/view', '/preview');
       document.getElementById('overlay-title').textContent = name + ' — Menu';
       document.getElementById('menu-frame').src = previewUrl;
       document.getElementById('menu-overlay').classList.add('visible');
     }
-
     function closeMenu() {
       document.getElementById('menu-overlay').classList.remove('visible');
       document.getElementById('menu-frame').src = '';
     }
-
-    // Close on overlay background click
-    document.getElementById('menu-overlay').addEventListener('click', function(e) {
-      if (e.target === this) closeMenu();
-    });
-
-    // Close on Escape key
+    document.getElementById('menu-overlay').addEventListener('click', function(e) { if (e.target === this) closeMenu(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
 
-    // ── Helpers ──────────────────────────────────────────────
     function getColor(score) {
       if (!score || score === '') return '#555';
       if (score >= 7.5) return '#b8975a';
@@ -208,16 +201,14 @@
 
     function fmt(val) { return val && val !== '' ? parseFloat(val).toFixed(2) : '—'; }
 
-    function makePopup(r, mode) {
+    function makePopup(r, mode, modeLabel) {
       const hasTotals = r.total_food && r.total_food !== '';
-      const totalFields = [
-        { key: 'total_food', label: '🍴 Food+' },
-        { key: 'total_wine', label: '🍷 Wine+' },
-        { key: 'total_atmosphere', label: '🎭 Atmosphere+' },
-        { key: 'total_neutral', label: '⚖️ Neutral' },
-      ];
 
       const ratingsHtml = hasTotals ? `
+        <div class="popup-featured">
+          <span class="popup-featured-label">${modeLabel} Score</span>
+          <span class="popup-featured-value">${fmt(r[mode])}</span>
+        </div>
         <div class="popup-ratings">
           <div class="popup-rating-row">
             <span class="popup-rating-label">Atmosphere</span>
@@ -234,13 +225,6 @@
             ${bar(r.plate)}
             <span class="popup-rating-value">${fmt(r.plate)}</span>
           </div>
-        </div>
-        <div class="popup-totals">
-          ${totalFields.map(f => `
-            <div class="popup-total-item ${f.key === mode ? 'highlight' : ''}">
-              <span class="popup-total-label">${f.label}</span>
-              <span class="popup-total-value">${fmt(r[f.key])}</span>
-            </div>`).join('')}
         </div>` : `<p class="popup-tbc">Ratings coming soon</p>`;
 
       const menuHtml = r.menu && r.menu.trim() !== ''
@@ -270,6 +254,7 @@
     }
 
     let currentMode = 'total_food';
+    let currentLabel = 'Food+';
     let currentSeason = 'All';
     let allRestaurants = [];
     let markers = [];
@@ -285,7 +270,7 @@
         const score = r[currentMode] && r[currentMode] !== '' ? parseFloat(r[currentMode]) : null;
         const marker = L.marker([parseFloat(r.lat), parseFloat(r.lng)], {
           icon: makeIcon(getColor(score), score)
-        }).addTo(map).bindPopup(makePopup(r, currentMode), { maxWidth: 280 });
+        }).addTo(map).bindPopup(makePopup(r, currentMode, currentLabel), { maxWidth: 280 });
         markers.push({ marker, data: r });
       });
     }
@@ -301,6 +286,7 @@
             document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentMode = btn.dataset.mode;
+            currentLabel = btn.dataset.label;
             renderMarkers();
           });
         });
@@ -315,6 +301,15 @@
         });
       })
       .catch(err => console.error('Failed to load sheet:', err));
+
+    // Profile tooltip toggle
+    const profileBtn = document.getElementById('profileHelpBtn');
+    const profileTooltip = document.getElementById('profileTooltip');
+    profileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      profileTooltip.classList.toggle('visible');
+    });
+    document.addEventListener('click', () => profileTooltip.classList.remove('visible'));
   </script>
 </body>
 </html>
