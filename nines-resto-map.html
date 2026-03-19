@@ -17,18 +17,25 @@
     }
     body { font-family: 'Montserrat', sans-serif; background: var(--ink); color: var(--cream); height: 100vh; display: flex; flex-direction: column; }
 
-    .controls { background: var(--ink); padding: 0.6rem 1rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; border-bottom: 1px solid rgba(184,151,90,0.2); }
-    .controls-label { font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-right: 0.25rem; }
-    .toggle-btn { font-family: 'Montserrat', sans-serif; font-size: 0.6rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.35rem 0.8rem; border: 1px solid rgba(184,151,90,0.3); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.2s; }
+    .controls { background: var(--ink); padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; border-bottom: 1px solid rgba(184,151,90,0.2); }
+    .controls-label { font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-right: 0.25rem; white-space: nowrap; }
+    .toggle-btn { font-family: 'Montserrat', sans-serif; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.5rem 1.1rem; border: 1px solid rgba(184,151,90,0.3); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
     .toggle-btn:hover { border-color: var(--gold); color: var(--gold-light); }
     .toggle-btn.active { background: var(--gold); color: var(--ink); border-color: var(--gold); }
-    .sep { width: 1px; height: 20px; background: rgba(184,151,90,0.2); margin: 0 0.25rem; }
+    .sep { width: 1px; height: 24px; background: rgba(184,151,90,0.2); margin: 0 0.25rem; flex-shrink: 0; }
 
     .legend { display: flex; align-items: center; gap: 0.75rem; margin-left: auto; flex-wrap: wrap; }
-    .legend-item { display: flex; align-items: center; gap: 0.3rem; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .legend-item { display: flex; align-items: center; gap: 0.3rem; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
     .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
 
     #map { flex: 1; }
+
+    /* Pin label */
+    .pin-label { background: transparent; border: none; box-shadow: none; }
+    .pin-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); box-shadow: 0 0 6px rgba(0,0,0,0.5); }
+    .pin-score { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 500; color: var(--cream); background: rgba(26,26,24,0.85); padding: 1px 3px; border-radius: 2px; white-space: nowrap; }
+    .pin-score.tbc { color: var(--muted); font-style: italic; }
 
     .leaflet-popup-content-wrapper { background: #1e1e1c; border: 1px solid rgba(184,151,90,0.3); border-radius: 2px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); padding: 0; }
     .leaflet-popup-content { margin: 0; min-width: 230px; }
@@ -42,7 +49,7 @@
     .popup-brigadiers { font-size: 0.65rem; color: var(--gold-light); margin-bottom: 0.75rem; font-style: italic; }
     .popup-divider { height: 1px; background: rgba(184,151,90,0.2); margin-bottom: 0.75rem; }
     .popup-ratings { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.75rem; }
-    .popup-rating-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.65rem; }
+    .popup-rating-row { display: flex; align-items: center; font-size: 0.65rem; }
     .popup-rating-label { letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); min-width: 70px; }
     .popup-rating-bar-wrap { flex: 1; height: 3px; background: rgba(255,255,255,0.07); margin: 0 0.6rem; border-radius: 2px; }
     .popup-rating-bar { height: 100%; background: var(--gold); border-radius: 2px; }
@@ -57,8 +64,6 @@
     .popup-menu-btn:hover { background: rgba(184,151,90,0.1); }
     .popup-no-menu { color: var(--muted); font-size: 0.6rem; text-align: center; margin-top: 0.5rem; font-style: italic; }
     .popup-tbc { color: var(--muted); font-size: 0.75rem; text-align: center; padding: 0.5rem 0; font-style: italic; }
-
-    .loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: var(--gold); font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; z-index: 1000; }
   </style>
 </head>
 <body>
@@ -66,9 +71,17 @@
   <div class="controls">
     <span class="controls-label">Profile</span>
     <button class="toggle-btn active" data-mode="total_food">🍴 Food Lover</button>
-    <button class="toggle-btn" data-mode="total_wine">🍷 Wine Appreciator</button>
-    <button class="toggle-btn" data-mode="total_atmosphere">🎭 Atmosphere Seeker</button>
+    <button class="toggle-btn" data-mode="total_wine">🍷 Wine</button>
+    <button class="toggle-btn" data-mode="total_atmosphere">🎭 Atmosphere</button>
     <button class="toggle-btn" data-mode="total_neutral">⚖️ Neutral</button>
+
+    <div class="sep"></div>
+
+    <span class="controls-label">Season</span>
+    <button class="toggle-btn active" data-season="All">All</button>
+    <button class="toggle-btn" data-season="S1">S1</button>
+    <button class="toggle-btn" data-season="S2">S2</button>
+    <button class="toggle-btn" data-season="S3">S3</button>
 
     <div class="sep"></div>
 
@@ -79,19 +92,17 @@
     </div>
   </div>
 
-  <div id="map"><div class="loading">Loading restaurants...</div></div>
+  <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRN3zApwLVbIyyNRRr0um-5KPXALnqQT53qOehiFrpCvJfFAVfEZw3yFYLet8iisqmRPeOt1BDiYhb-/pub?output=csv';
 
-    // ── MAP SETUP ────────────────────────────────────────────
-    const map = L.map('map', { zoomControl: true }).setView([51.505, -0.13], 12);
+    const map = L.map('map').setView([51.505, -0.13], 12);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       attribution: '© OpenStreetMap © CartoDB', maxZoom: 19
     }).addTo(map);
 
-    // ── HELPERS ──────────────────────────────────────────────
     function getColor(score) {
       if (!score || score === '') return '#555';
       if (score >= 7.5) return '#b8975a';
@@ -99,11 +110,20 @@
       return '#cd7f32';
     }
 
-    function makeIcon(color) {
+    function makeIcon(color, score) {
+      const scoreText = score ? parseFloat(score).toFixed(1) : null;
+      const scoreHtml = scoreText
+        ? `<div class="pin-score">${scoreText}</div>`
+        : `<div class="pin-score tbc">tbc</div>`;
       return L.divIcon({
-        className: '',
-        html: `<div style="width:14px;height:14px;border-radius:50%;background:${color};border:2px solid rgba(255,255,255,0.3);box-shadow:0 0 6px rgba(0,0,0,0.5);"></div>`,
-        iconSize: [14,14], iconAnchor: [7,7], popupAnchor: [0,-10]
+        className: 'pin-label',
+        html: `<div class="pin-wrap">
+          <div class="pin-dot" style="background:${color};"></div>
+          ${scoreHtml}
+        </div>`,
+        iconSize: [40, 32],
+        iconAnchor: [20, 7],
+        popupAnchor: [0, -10]
       });
     }
 
@@ -112,15 +132,15 @@
       return `<div class="popup-rating-bar-wrap"><div class="popup-rating-bar" style="width:${((val/10)*100).toFixed(0)}%"></div></div>`;
     }
 
-    function fmt(val) { return val ? parseFloat(val).toFixed(2) : '—'; }
+    function fmt(val) { return val && val !== '' ? parseFloat(val).toFixed(2) : '—'; }
 
     function makePopup(r, mode) {
       const hasTotals = r.total_food && r.total_food !== '';
       const totalFields = [
-        { key: 'total_food',        label: 'Food Lover' },
-        { key: 'total_wine',        label: 'Wine' },
-        { key: 'total_atmosphere',  label: 'Atmosphere' },
-        { key: 'total_neutral',     label: 'Neutral' },
+        { key: 'total_food', label: '🍴 Food Lover' },
+        { key: 'total_wine', label: '🍷 Wine' },
+        { key: 'total_atmosphere', label: '🎭 Atmosphere' },
+        { key: 'total_neutral', label: '⚖️ Neutral' },
       ];
 
       const ratingsHtml = hasTotals ? `
@@ -146,28 +166,24 @@
             <div class="popup-total-item ${f.key === mode ? 'highlight' : ''}">
               <span class="popup-total-label">${f.label}</span>
               <span class="popup-total-value">${fmt(r[f.key])}</span>
-            </div>
-          `).join('')}
-        </div>
-      ` : `<p class="popup-tbc">Ratings coming soon</p>`;
+            </div>`).join('')}
+        </div>` : `<p class="popup-tbc">Ratings coming soon</p>`;
 
       const menuHtml = r.menu && r.menu.trim() !== ''
         ? `<a class="popup-menu-btn" href="${r.menu}" target="_blank">View Menu PDF</a>`
         : `<p class="popup-no-menu">Menu not yet available</p>`;
 
-      return `
-        <div class="popup-inner">
-          <div class="popup-season">${r.season} · ${r.month} · ${r.id}</div>
-          <div class="popup-name">${r.name}</div>
-          <div class="popup-address">${r.address}, ${r.postcode}</div>
-          <div class="popup-brigadiers">${r.brigadiers}</div>
-          <div class="popup-divider"></div>
-          ${ratingsHtml}
-          ${menuHtml}
-        </div>`;
+      return `<div class="popup-inner">
+        <div class="popup-season">${r.season} · ${r.month} · ${r.id}</div>
+        <div class="popup-name">${r.name}</div>
+        <div class="popup-address">${r.address}, ${r.postcode}</div>
+        <div class="popup-brigadiers">${r.brigadiers}</div>
+        <div class="popup-divider"></div>
+        ${ratingsHtml}
+        ${menuHtml}
+      </div>`;
     }
 
-    // ── CSV PARSER ───────────────────────────────────────────
     function parseCSV(text) {
       const lines = text.trim().split('\n');
       const headers = lines[0].split(',').map(h => h.trim());
@@ -179,19 +195,24 @@
       });
     }
 
-    // ── LOAD & RENDER ────────────────────────────────────────
     let currentMode = 'total_food';
+    let currentSeason = 'All';
+    let allRestaurants = [];
     let markers = [];
 
-    function renderMarkers(restaurants) {
+    function renderMarkers() {
       markers.forEach(({ marker }) => map.removeLayer(marker));
       markers = [];
 
-      restaurants.forEach(r => {
+      const filtered = currentSeason === 'All'
+        ? allRestaurants
+        : allRestaurants.filter(r => r.season === currentSeason);
+
+      filtered.forEach(r => {
         if (!r.lat || !r.lng) return;
-        const score = parseFloat(r[currentMode]) || null;
+        const score = r[currentMode] && r[currentMode] !== '' ? parseFloat(r[currentMode]) : null;
         const marker = L.marker([parseFloat(r.lat), parseFloat(r.lng)], {
-          icon: makeIcon(getColor(score))
+          icon: makeIcon(getColor(score), score)
         }).addTo(map).bindPopup(makePopup(r, currentMode), { maxWidth: 280 });
         markers.push({ marker, data: r });
       });
@@ -200,24 +221,30 @@
     fetch(SHEET_URL)
       .then(res => res.text())
       .then(text => {
-        const restaurants = parseCSV(text);
-        document.querySelector('.loading').style.display = 'none';
-        renderMarkers(restaurants);
+        allRestaurants = parseCSV(text);
+        renderMarkers();
 
-        // Toggle buttons
-        document.querySelectorAll('.toggle-btn').forEach(btn => {
+        // Profile toggles
+        document.querySelectorAll('[data-mode]').forEach(btn => {
           btn.addEventListener('click', () => {
-            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentMode = btn.dataset.mode;
-            renderMarkers(restaurants);
+            renderMarkers();
+          });
+        });
+
+        // Season toggles
+        document.querySelectorAll('[data-season]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('[data-season]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentSeason = btn.dataset.season;
+            renderMarkers();
           });
         });
       })
-      .catch(err => {
-        document.querySelector('.loading').textContent = 'Failed to load data. Please refresh.';
-        console.error(err);
-      });
+      .catch(err => console.error('Failed to load sheet:', err));
   </script>
 </body>
 </html>
