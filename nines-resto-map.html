@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Nines — Restaurant Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #1a1a18;
+      --cream: #f5f0e8;
+      --gold: #b8975a;
+      --gold-light: #d4b483;
+      --muted: #6b6458;
+    }
+    body { font-family: 'Montserrat', sans-serif; background: var(--ink); color: var(--cream); height: 100vh; display: flex; flex-direction: column; }
+
+    .controls { background: var(--ink); padding: 0.6rem 1rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; border-bottom: 1px solid rgba(184,151,90,0.2); }
+    .controls-label { font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-right: 0.25rem; }
+    .toggle-btn { font-family: 'Montserrat', sans-serif; font-size: 0.6rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.35rem 0.8rem; border: 1px solid rgba(184,151,90,0.3); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.2s; }
+    .toggle-btn:hover { border-color: var(--gold); color: var(--gold-light); }
+    .toggle-btn.active { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+    .sep { width: 1px; height: 20px; background: rgba(184,151,90,0.2); margin: 0 0.25rem; }
+
+    .legend { display: flex; align-items: center; gap: 0.75rem; margin-left: auto; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 0.3rem; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+    #map { flex: 1; }
+
+    .leaflet-popup-content-wrapper { background: #1e1e1c; border: 1px solid rgba(184,151,90,0.3); border-radius: 2px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); padding: 0; }
+    .leaflet-popup-content { margin: 0; min-width: 230px; }
+    .leaflet-popup-tip { background: #1e1e1c; }
+    .leaflet-popup-close-button { color: var(--muted) !important; top: 8px !important; right: 8px !important; }
+
+    .popup-inner { padding: 1rem 1.1rem; }
+    .popup-season { font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+    .popup-name { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; color: var(--cream); margin-bottom: 0.1rem; line-height: 1.2; }
+    .popup-address { font-size: 0.6rem; color: var(--muted); margin-bottom: 0.15rem; }
+    .popup-brigadiers { font-size: 0.65rem; color: var(--gold-light); margin-bottom: 0.75rem; font-style: italic; }
+    .popup-divider { height: 1px; background: rgba(184,151,90,0.2); margin-bottom: 0.75rem; }
+    .popup-ratings { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.75rem; }
+    .popup-rating-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.65rem; }
+    .popup-rating-label { letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); min-width: 70px; }
+    .popup-rating-bar-wrap { flex: 1; height: 3px; background: rgba(255,255,255,0.07); margin: 0 0.6rem; border-radius: 2px; }
+    .popup-rating-bar { height: 100%; background: var(--gold); border-radius: 2px; }
+    .popup-rating-value { font-weight: 500; color: var(--cream); min-width: 32px; text-align: right; }
+    .popup-totals { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; padding-top: 0.5rem; border-top: 1px solid rgba(184,151,90,0.15); margin-bottom: 0.5rem; }
+    .popup-total-item { display: flex; flex-direction: column; }
+    .popup-total-label { font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .popup-total-value { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--gold); font-weight: 600; }
+    .popup-total-item.highlight .popup-total-value { color: #fff; }
+    .popup-total-item.highlight .popup-total-label { color: var(--gold-light); }
+    .popup-menu-btn { display: block; text-align: center; margin-top: 0.5rem; padding: 0.5rem; border: 1px solid rgba(184,151,90,0.3); color: var(--gold-light); font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; transition: background 0.2s; }
+    .popup-menu-btn:hover { background: rgba(184,151,90,0.1); }
+    .popup-no-menu { color: var(--muted); font-size: 0.6rem; text-align: center; margin-top: 0.5rem; font-style: italic; }
+    .popup-tbc { color: var(--muted); font-size: 0.75rem; text-align: center; padding: 0.5rem 0; font-style: italic; }
+
+    .loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: var(--gold); font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; z-index: 1000; }
+  </style>
+</head>
+<body>
+
+  <div class="controls">
+    <span class="controls-label">Profile</span>
+    <button class="toggle-btn active" data-mode="total_food">🍴 Food Lover</button>
+    <button class="toggle-btn" data-mode="total_wine">🍷 Wine Appreciator</button>
+    <button class="toggle-btn" data-mode="total_atmosphere">🎭 Atmosphere Seeker</button>
+    <button class="toggle-btn" data-mode="total_neutral">⚖️ Neutral</button>
+
+    <div class="sep"></div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#b8975a;"></div> ≥ 7.5</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#9aa0a6;"></div> 6.5–7.5</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#cd7f32;"></div> &lt; 6.5</div>
+    </div>
+  </div>
+
+  <div id="map"><div class="loading">Loading restaurants...</div></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRN3zApwLVbIyyNRRr0um-5KPXALnqQT53qOehiFrpCvJfFAVfEZw3yFYLet8iisqmRPeOt1BDiYhb-/pub?output=csv';
+
+    // ── MAP SETUP ────────────────────────────────────────────
+    const map = L.map('map', { zoomControl: true }).setView([51.505, -0.13], 12);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap © CartoDB', maxZoom: 19
+    }).addTo(map);
+
+    // ── HELPERS ──────────────────────────────────────────────
+    function getColor(score) {
+      if (!score || score === '') return '#555';
+      if (score >= 7.5) return '#b8975a';
+      if (score >= 6.5) return '#9aa0a6';
+      return '#cd7f32';
+    }
+
+    function makeIcon(color) {
+      return L.divIcon({
+        className: '',
+        html: `<div style="width:14px;height:14px;border-radius:50%;background:${color};border:2px solid rgba(255,255,255,0.3);box-shadow:0 0 6px rgba(0,0,0,0.5);"></div>`,
+        iconSize: [14,14], iconAnchor: [7,7], popupAnchor: [0,-10]
+      });
+    }
+
+    function bar(val) {
+      if (!val) return '<div class="popup-rating-bar-wrap"><div class="popup-rating-bar" style="width:0%"></div></div>';
+      return `<div class="popup-rating-bar-wrap"><div class="popup-rating-bar" style="width:${((val/10)*100).toFixed(0)}%"></div></div>`;
+    }
+
+    function fmt(val) { return val ? parseFloat(val).toFixed(2) : '—'; }
+
+    function makePopup(r, mode) {
+      const hasTotals = r.total_food && r.total_food !== '';
+      const totalFields = [
+        { key: 'total_food',        label: 'Food Lover' },
+        { key: 'total_wine',        label: 'Wine' },
+        { key: 'total_atmosphere',  label: 'Atmosphere' },
+        { key: 'total_neutral',     label: 'Neutral' },
+      ];
+
+      const ratingsHtml = hasTotals ? `
+        <div class="popup-ratings">
+          <div class="popup-rating-row">
+            <span class="popup-rating-label">Atmosphere</span>
+            ${bar(r.atmosphere)}
+            <span class="popup-rating-value">${fmt(r.atmosphere)}</span>
+          </div>
+          <div class="popup-rating-row">
+            <span class="popup-rating-label">Wine</span>
+            ${bar(r.bottles)}
+            <span class="popup-rating-value">${fmt(r.bottles)}</span>
+          </div>
+          <div class="popup-rating-row">
+            <span class="popup-rating-label">Food</span>
+            ${bar(r.plate)}
+            <span class="popup-rating-value">${fmt(r.plate)}</span>
+          </div>
+        </div>
+        <div class="popup-totals">
+          ${totalFields.map(f => `
+            <div class="popup-total-item ${f.key === mode ? 'highlight' : ''}">
+              <span class="popup-total-label">${f.label}</span>
+              <span class="popup-total-value">${fmt(r[f.key])}</span>
+            </div>
+          `).join('')}
+        </div>
+      ` : `<p class="popup-tbc">Ratings coming soon</p>`;
+
+      const menuHtml = r.menu && r.menu.trim() !== ''
+        ? `<a class="popup-menu-btn" href="${r.menu}" target="_blank">View Menu PDF</a>`
+        : `<p class="popup-no-menu">Menu not yet available</p>`;
+
+      return `
+        <div class="popup-inner">
+          <div class="popup-season">${r.season} · ${r.month} · ${r.id}</div>
+          <div class="popup-name">${r.name}</div>
+          <div class="popup-address">${r.address}, ${r.postcode}</div>
+          <div class="popup-brigadiers">${r.brigadiers}</div>
+          <div class="popup-divider"></div>
+          ${ratingsHtml}
+          ${menuHtml}
+        </div>`;
+    }
+
+    // ── CSV PARSER ───────────────────────────────────────────
+    function parseCSV(text) {
+      const lines = text.trim().split('\n');
+      const headers = lines[0].split(',').map(h => h.trim());
+      return lines.slice(1).map(line => {
+        const vals = line.split(',');
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = (vals[i] || '').trim());
+        return obj;
+      });
+    }
+
+    // ── LOAD & RENDER ────────────────────────────────────────
+    let currentMode = 'total_food';
+    let markers = [];
+
+    function renderMarkers(restaurants) {
+      markers.forEach(({ marker }) => map.removeLayer(marker));
+      markers = [];
+
+      restaurants.forEach(r => {
+        if (!r.lat || !r.lng) return;
+        const score = parseFloat(r[currentMode]) || null;
+        const marker = L.marker([parseFloat(r.lat), parseFloat(r.lng)], {
+          icon: makeIcon(getColor(score))
+        }).addTo(map).bindPopup(makePopup(r, currentMode), { maxWidth: 280 });
+        markers.push({ marker, data: r });
+      });
+    }
+
+    fetch(SHEET_URL)
+      .then(res => res.text())
+      .then(text => {
+        const restaurants = parseCSV(text);
+        document.querySelector('.loading').style.display = 'none';
+        renderMarkers(restaurants);
+
+        // Toggle buttons
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentMode = btn.dataset.mode;
+            renderMarkers(restaurants);
+          });
+        });
+      })
+      .catch(err => {
+        document.querySelector('.loading').textContent = 'Failed to load data. Please refresh.';
+        console.error(err);
+      });
+  </script>
+</body>
+</html>
