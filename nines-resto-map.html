@@ -302,14 +302,6 @@
       })
       .catch(err => console.error('Failed to load sheet:', err));
 
-    // Profile tooltip toggle
-    const profileBtn = document.getElementById('profileHelpBtn');
-    const profileTooltip = document.getElementById('profileTooltip');
-    profileBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      profileTooltip.classList.toggle('visible');
-    });
-    document.addEventListener('click', () => profileTooltip.classList.remove('visible'));
   </script>
 </body>
 </html>
