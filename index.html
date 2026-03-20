@@ -122,11 +122,17 @@
       // Wire up sign in button
       document.getElementById('signinBtn').addEventListener('click', (e) => {
         e.preventDefault();
+        
+        const params = new URLSearchParams({
+          client_id: 'YOUR_CLIENT_ID.apps.googleusercontent.com',
+          redirect_uri: APPS_SCRIPT_URL,
+          response_type: 'code',
+          scope: 'email profile',
+          prompt: 'select_account',
+          access_type: 'online'
+        });
 
-        // Build the OAuth URL — forces account chooser
-        //const authUrl = APPS_SCRIPT_URL + '?action=auth&redirect=' + encodeURIComponent(GATE_URL);
-        const authUrl = APPS_SCRIPT_URL + '?action=login';
-        window.location.href = authUrl;
+        window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
       });
     });
   </script>
