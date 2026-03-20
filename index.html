@@ -124,7 +124,8 @@
         e.preventDefault();
 
         // Build the OAuth URL — forces account chooser
-        const authUrl = APPS_SCRIPT_URL + '?action=auth&redirect=' + encodeURIComponent(GATE_URL);
+        //const authUrl = APPS_SCRIPT_URL + '?action=auth&redirect=' + encodeURIComponent(GATE_URL);
+        const authUrl = APPS_SCRIPT_URL + '?action=login';
         window.location.href = authUrl;
       });
     });
