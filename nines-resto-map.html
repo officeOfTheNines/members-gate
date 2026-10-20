@@ -158,10 +158,10 @@
     document.addEventListener('click', () => profileTooltip.classList.remove('visible'));
 
     const map = L.map('map').setView([51.505, -0.13], 12);
-    L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-      attribution: '© Stadia Maps © OpenStreetMap',
-      maxZoom: 19
-    }).addTo(map);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+  attribution: '© Esri © OpenStreetMap',
+  maxZoom: 16
+}).addTo(map);
 
     function openMenu(url, name) {
       const previewUrl = url.replace('/view?usp=sharing', '/preview').replace('/view', '/preview');
