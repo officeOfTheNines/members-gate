@@ -158,8 +158,8 @@
     document.addEventListener('click', () => profileTooltip.classList.remove('visible'));
 
     const map = L.map('map').setView([51.505, -0.13], 12);
-L.tileLayer('https://tiles.openfreemap.org/styles/dark/{z}/{x}/{y}.png', {
-  attribution: '© OpenFreeMap © OpenMapTiles © OpenStreetMap',
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   maxZoom: 19
 }).addTo(map);
 
